@@ -1,5 +1,7 @@
 package;
 
+import flixel.math.FlxVelocity;
+
 enum ZombieType
 {
 	Basic;
@@ -41,5 +43,15 @@ class Zombie extends ClampedSprite
 		var dx = _PLAYER.x - x - width / 2;
 		var dy = _PLAYER.y - y - height / 2;
 		angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+		FlxVelocity.moveTowardsObject(this, _PLAYER, speed);
+	}
+
+	public function hurt(damage:Int)
+	{
+		health -= damage;
+		trace(health, damage);
+		if (health <= 0)
+			destroy();
 	}
 }
