@@ -1,5 +1,6 @@
 package;
 
+import flixel.FlxG;
 import flixel.math.FlxVelocity;
 
 enum ZombieType
@@ -44,13 +45,32 @@ class Zombie extends ClampedSprite
 		var dy = _PLAYER.y - y - height / 2;
 		angle = Math.atan2(dy, dx) * 180 / Math.PI;
 
-		FlxVelocity.moveTowardsObject(this, _PLAYER, speed);
+		if (Math.abs(velocity.x) < 1 && Math.abs(velocity.y) < 1)
+		{
+			FlxVelocity.moveTowardsObject(this, _PLAYER, speed);
+		}
+		else
+		{
+			velocity.x *= 0.9;
+			velocity.y *= 0.9;
+		}
 	}
 
 	public function hurt(damage:Int)
 	{
+		FlxG.sound.play("assets/sounds/hit.ogg");
 		health -= damage;
 		trace(health, damage);
+
+		// Knockback
+		var knockbackStrength:Float = 150;
+		var dx = x - _PLAYER.x;
+		var dy = y - _PLAYER.y;
+		var angle = Math.atan2(dy, dx);
+		
+		velocity.x = Math.cos(angle) * knockbackStrength;
+		velocity.y = Math.sin(angle) * knockbackStrength;
+
 		if (health <= 0)
 			destroy();
 	}

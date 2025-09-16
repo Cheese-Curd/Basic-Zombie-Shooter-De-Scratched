@@ -14,14 +14,17 @@ class PlayState extends FlxState
 	var spawnedBullets:FlxTypedGroup<Bullet>;
 	var spawnedZombies:FlxTypedGroup<Zombie>;
 
+	var bgLevel:FlxSprite;
+
 	override public function create()
 	{
 		super.create();
 
-		camera.bgColor = -1;
+		bgLevel = new FlxSprite();
+		bgLevel.loadGraphic("assets/images/levels/grass.png");
+		add(bgLevel);
 
-		player = new Player();
-		add(player);
+		camera.bgColor = -1;
 
 		spawnedCoins = new FlxTypedGroup<FlxSprite>();
 		add(spawnedCoins);
@@ -31,6 +34,15 @@ class PlayState extends FlxState
 
 		spawnedZombies = new FlxTypedGroup<Zombie>();
 		add(spawnedZombies);
+		
+		player = new Player();
+		add(player);
+
+		// UI Stuff
+		var UIBorder:FlxSprite = new FlxSprite(0,0);
+		UIBorder.loadGraphic("assets/images/UIBorder.png");
+		UIBorder.alpha = 0.5;
+		add(UIBorder);
 	}
 
 	final COIN_INTERVAL:Float = 15;
@@ -54,17 +66,19 @@ class PlayState extends FlxState
 
 	inline function spawnBullet(x:Float, y:Float, angle:Float)
 	{
+		FlxG.sound.play("assets/sounds/shoot.ogg");
 		var bullet = new Bullet(x, y, angle);
 		spawnedBullets.add(bullet);
 	}
 
-	var shot:Bool = false;
-	final SHOOT_INTERVAL:Float = 0.25;
+	var shootInterval:Float = 0;
 	var shootTimer:Float = 0;
 
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
+
+		shootInterval = 1 / player.shootRate;
 
 		coinTimer += elapsed;
 		zombTimer += elapsed;
@@ -82,6 +96,7 @@ class PlayState extends FlxState
 		{
 			if (FlxG.overlap(player, coin))
 			{
+				FlxG.sound.play("assets/sounds/coin.ogg");
 				coin.destroy();
 				coins++;
 				trace(coins);
@@ -92,35 +107,21 @@ class PlayState extends FlxState
 		{
 			zombTimer = 0;
 			var randY = FlxG.random.float(0, FlxG.height);
-			spawnZombie(FlxG.width + 128, randY);
+			spawnZombie(FlxG.width + 250, randY);
 		}
+
+		shootTimer += elapsed;
 
 		if(FlxG.mouse.pressed)
 		{
-			switch (player.weaponState)
+			if (shootTimer >= shootInterval)
 			{
-				case Pistol:
-					if (!shot)
-					{
-						spawnBullet(player.x, player.y, player.angle);
-						shot = true;
-					}
-				case Automatic:
-					shootTimer += elapsed;
-					if (shootTimer >= SHOOT_INTERVAL)
-					{
-						shootTimer = 0;
-						spawnBullet(player.x, player.y, player.angle);
-					}
-				default:
-					throw "Unknown weapon state: " + player.weaponState;
+				shootTimer -= shootInterval;  // subtract instead of reset to keep precision
+				spawnBullet(player.x, player.y, player.angle);
 			}
 		}
 		else
-		{
-			shootTimer = 0;
-			shot = false;
-		}
+			shootTimer = shootInterval;
 
 		for (bullet in spawnedBullets)
 		{

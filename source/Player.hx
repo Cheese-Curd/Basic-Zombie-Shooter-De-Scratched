@@ -1,18 +1,22 @@
 package;
 
 import flixel.FlxG;
+import flixel.input.keyboard.FlxKey;
 import flixel.math.FlxPoint;
 
 enum WeaponState
 {
 	Pistol;
 	Automatic;
+	Burst;
 }
 
 class Player extends ClampedSprite
 {
 	public var weaponState:WeaponState = Pistol;
-	var autoUnlocked:Bool       = true;
+	var weaponsUnlocked:Int = 1;
+
+	public var shootRate = 1; // x per second
 
 	public function new(?x:Int = 0, ?y:Int = 0)
 	{
@@ -41,7 +45,7 @@ class Player extends ClampedSprite
 	var xDir:Int = 0;
 	var yDir:Int = 0;
 
-	var shot:Bool = false;
+	var pressedKey:FlxKey;
 
 	override function update(elapsed:Float) {
 		super.update(elapsed);
@@ -67,25 +71,14 @@ class Player extends ClampedSprite
 		velocity.set(curVel.x * curSpeed, curVel.y * curSpeed);
 
 		// Weapon stuff
-		if (FlxG.keys.justPressed.ONE)
-			weaponState = Pistol;
-		if (FlxG.keys.justPressed.TWO && autoUnlocked)
-			weaponState = Automatic;
-
 		if(FlxG.mouse.pressed)
 		{
 			switch (weaponState)
 			{
 				case Pistol:
-					if (!shot)
-					{
-						animation.play("pistol_shoot");
-						shot = true;
-					}
-				case Automatic:
-					animation.play("auto_shoot");
+					animation.play("pistol_shoot");
 				default:
-					throw "Unknown weapon state: " + weaponState;
+					animation.play("auto_shoot");
 			}
 		}
 		else
@@ -94,13 +87,32 @@ class Player extends ClampedSprite
 			{
 				case Pistol:
 					animation.play("pistol_idle");
-				case Automatic:
-					animation.play("auto_idle");
 				default:
-					throw "Unknown weapon state: " + weaponState;
+					animation.play("auto_idle");
 			}
+		}
 
-			shot = false;
+		if      (FlxG.keys.justPressed.ONE)   pressedKey = FlxKey.ONE;
+		else if (FlxG.keys.justPressed.TWO)   pressedKey = FlxKey.TWO;
+		else if (FlxG.keys.justPressed.THREE) pressedKey = FlxKey.THREE;
+		else if (FlxG.keys.justPressed.FOUR)  pressedKey = FlxKey.FOUR;
+
+		switch (pressedKey)
+		{
+			case FlxKey.ONE:
+				weaponState = Pistol;
+				shootRate   = 1;
+			case FlxKey.TWO:
+				weaponState = Automatic;
+				shootRate   = 5;
+			case FlxKey.THREE:
+				weaponState = Burst;
+				shootRate   = 10;
+			// case FlxKey.FOUR:
+			// 	weaponState = Pistol;
+			// 	shootRate   = 1;
+			default:
+				return; // Nothing needed is being pressed
 		}
 	}
 }

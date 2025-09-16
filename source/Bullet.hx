@@ -25,22 +25,10 @@ class Bullet extends FlxSprite
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		// Left edge
-		if (x < 0)
+		// Edge removal
+		if (!isOnScreen())
 			destroy();
 
-		// Right edge
-		if (x + width > FlxG.width)
-			destroy();
-
-		// Top
-		if (y < 0)
-			destroy();
-
-		// Bottom
-		if (y + height > FlxG.height)
-			destroy();
-
-		velocity = FlxVelocity.velocityFromAngle(angle, 100);
+		velocity = FlxVelocity.velocityFromAngle(angle, 250);
 	}
 }
