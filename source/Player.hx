@@ -20,7 +20,7 @@ class Player extends ClampedSprite
 
 		loadGraphic("assets/images/player.png", true, 48, 32);
 		animation.add("pistol_idle",  [0],    1);
-		animation.add("pistol_shoot", [1, 0, 1], 5, false);
+		animation.add("pistol_shoot", [1, 0], 5, false);
 
 		animation.add("auto_idle",  [2],    1);
 		animation.add("auto_shoot", [2, 3], 8);
