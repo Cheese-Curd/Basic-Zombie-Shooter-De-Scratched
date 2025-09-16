@@ -49,7 +49,7 @@ class PlayState extends FlxState
 	inline function spawnZombie(x:Float, y:Float)
 	{
 		var zomb = new Zombie(x, y, FlxG.random.bool() ? Basic : Fast, player);
-		add(zomb);
+		spawnedZombies.add(zomb);
 	}
 
 	inline function spawnBullet(x:Float, y:Float, angle:Float)
