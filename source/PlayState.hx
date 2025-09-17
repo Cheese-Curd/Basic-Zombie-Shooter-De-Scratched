@@ -27,7 +27,7 @@ class PlayState extends FlxState
 		super.create();
 
 		bgLevel = new FlxSprite();
-		bgLevel.loadGraphic("assets/images/levels/grass.png");
+		bgLevel.loadGraphic("assets/images/levels/concrete.png");
 		add(bgLevel);
 
 		camera.bgColor = -1;
