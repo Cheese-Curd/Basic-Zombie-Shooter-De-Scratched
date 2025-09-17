@@ -101,10 +101,10 @@ class Player extends ClampedSprite
 		{
 			case FlxKey.ONE:
 				weaponState = Pistol;
-				shootRate   = 1;
+				shootRate   = 4;
 			case FlxKey.TWO:
 				weaponState = Automatic;
-				shootRate   = 5;
+				shootRate   = 6;
 			case FlxKey.THREE:
 				weaponState = Burst;
 				shootRate   = 10;

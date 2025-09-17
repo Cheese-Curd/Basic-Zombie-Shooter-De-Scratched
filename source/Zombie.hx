@@ -1,6 +1,7 @@
 package;
 
 import flixel.FlxG;
+import flixel.effects.FlxFlicker;
 import flixel.math.FlxVelocity;
 
 enum ZombieType
@@ -13,7 +14,7 @@ class Zombie extends ClampedSprite
 {
 	var curType:ZombieType = Basic;
 	var speed:Float = 0.0;
-	var health:Int  = 3;
+	public var health:Int  = 3;
 	var _PLAYER:Player;
 
 	public function new(x:Float, y:Float, zombieType:ZombieType, player:Player)
@@ -40,19 +41,22 @@ class Zombie extends ClampedSprite
 	{
 		super.update(elapsed);
 
-		// Face Player
-		var dx = _PLAYER.x - x - width / 2;
-		var dy = _PLAYER.y - y - height / 2;
-		angle = Math.atan2(dy, dx) * 180 / Math.PI;
+		if (health > 0)
+		{
+			// Face Player
+			var dx = _PLAYER.x - x - width / 2;
+			var dy = _PLAYER.y - y - height / 2;
+			angle = Math.atan2(dy, dx) * 180 / Math.PI;
 
-		if (Math.abs(velocity.x) < 1 && Math.abs(velocity.y) < 1)
-		{
-			FlxVelocity.moveTowardsObject(this, _PLAYER, speed);
-		}
-		else
-		{
-			velocity.x *= 0.9;
-			velocity.y *= 0.9;
+			if (Math.abs(velocity.x) < 1 && Math.abs(velocity.y) < 1)
+			{
+				FlxVelocity.moveTowardsObject(this, _PLAYER, speed);
+			}
+			else
+			{
+				velocity.x *= 0.9;
+				velocity.y *= 0.9;
+			}
 		}
 	}
 
@@ -71,7 +75,6 @@ class Zombie extends ClampedSprite
 		velocity.x = Math.cos(angle) * knockbackStrength;
 		velocity.y = Math.sin(angle) * knockbackStrength;
 
-		if (health <= 0)
-			destroy();
+		FlxFlicker.flicker(this, 0.25, 0.04, true);
 	}
 }

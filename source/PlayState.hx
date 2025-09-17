@@ -4,6 +4,8 @@ import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.group.FlxGroup;
+import flixel.math.FlxRandom;
+import flixel.text.FlxText;
 
 class PlayState extends FlxState
 {
@@ -15,6 +17,10 @@ class PlayState extends FlxState
 	var spawnedZombies:FlxTypedGroup<Zombie>;
 
 	var bgLevel:FlxSprite;
+
+	var random:FlxRandom = new FlxRandom();
+
+	var coinText:FlxText;
 
 	override public function create()
 	{
@@ -43,6 +49,13 @@ class PlayState extends FlxState
 		UIBorder.loadGraphic("assets/images/UIBorder.png");
 		UIBorder.alpha = 0.5;
 		add(UIBorder);
+
+		var coinIcon:FlxSprite = new FlxSprite(5, 5);
+		coinIcon.loadGraphic("assets/images/coin.png");
+		add(coinIcon);
+
+		coinText = new FlxText(45, 15);
+		add(coinText);
 	}
 
 	final COIN_INTERVAL:Float = 15;
@@ -73,6 +86,16 @@ class PlayState extends FlxState
 
 	var shootInterval:Float = 0;
 	var shootTimer:Float = 0;
+
+	inline function handleZombDeath(zombie:Zombie)
+	{
+		if (random.int(0, 10) > 5)
+			spawnCoin(zombie.x, zombie.y);
+
+		spawnedZombies.remove(zombie);
+		zombie.destroy();
+
+	}
 
 	override public function update(elapsed:Float)
 	{
@@ -121,7 +144,7 @@ class PlayState extends FlxState
 			}
 		}
 		else
-			shootTimer = shootInterval;
+			shootTimer = shootInterval - elapsed;
 
 		for (bullet in spawnedBullets)
 		{
@@ -130,9 +153,25 @@ class PlayState extends FlxState
 				if (FlxG.overlap(bullet, zombie))
 				{
 					bullet.destroy();
+					spawnedBullets.remove(bullet);
 					zombie.hurt(1);
+					if (zombie.health <= 0)
+						handleZombDeath(zombie);
 				}
 			}
 		}
+
+		#if debug
+		if (FlxG.keys.justPressed.R)
+		{
+			for (zombie in spawnedZombies)
+			{
+				zombie.hurt(999);
+				handleZombDeath(zombie);
+			}
+		}
+		#end
+
+		coinText.text = '$coins';
 	}
 }
